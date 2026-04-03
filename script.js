@@ -203,21 +203,21 @@ function previewHTML(d){
 function dynRows(f,ph){
   const rows=state.data[f];
   return `<div class="dyn-header"><span>年</span><span>月</span><span>${ph.split(' ')[0]}</span><span></span></div>`+
-  rows.map((r,i)=>`<div class="dyn-row">
-    <input maxlength="4" placeholder="2020" value="${r.year}" oninput="setRow('${f}',${i},'year',this.value)">
-    <input maxlength="2" placeholder="4" value="${r.month}" oninput="setRow('${f}',${i},'month',this.value)">
-    <input placeholder="${ph}" value="${r.content.replace(/"/g,'&quot;')}" oninput="setRow('${f}',${i},'content',this.value)">
-    <button class="btn-rem" onclick="remRow('${f}',${i})">✕</button>
-  </div>`).join('')+
+  rows.map((r, i) => `<div class="dyn-row">
+  <input id="f-${f}-${i}-year" maxlength="4" placeholder="2020" value="${r.year}" oninput="setRow('${f}',${i},'year',this.value)">
+  <input id="f-${f}-${i}-month" maxlength="2" placeholder="4" value="${r.month}" oninput="setRow('${f}',${i},'month',this.value)">
+  <input id="f-${f}-${i}-content" placeholder="${ph}" value="${r.content.replace(/"/g,'&quot;')}" oninput="setRow('${f}',${i},'content',this.value)">
+  <button class="btn-rem" onclick="remRow('${f}',${i})">✕</button>
+</div>`).join('')+
   `<button class="btn-add" onclick="addRow('${f}')">＋ 追加</button>`;
 }
 
 function f(label,inp){return`<div class="field"><label>${label}</label>${inp}</div>`}
 function g2(a,b){return`<div class="grid2">${a}${b}</div>`}
 function g3(a,b,c){return`<div class="grid3">${a}${b}${c}</div>`}
-function inp(k,ph,type='text',extra=''){
-  const v=(state.data[k]||'').toString().replace(/"/g,'&quot;');
-  return`<input type="${type}" placeholder="${ph}" value="${v}" ${extra} oninput="set('${k}',this.value)">`;
+function inp(k, ph, type='text', extra='') {
+  const v = (state.data[k] || '').toString().replace(/"/g, '&quot;');
+  return `<input id="f-${k}" type="${type}" placeholder="${ph}" value="${v}" ${extra} oninput="set('${k}',this.value)">`;
 }
 function sel(k,opts){
   return`<select onchange="set('${k}',this.value)">${opts.map(o=>`<option${state.data[k]===o?' selected':''}>${o}</option>`).join('')}</select>`;
@@ -298,6 +298,11 @@ function formHTML() {
 }
 
 function render() {
+  
+  const activeId  = document.activeElement?.id;
+  const selStart  = document.activeElement?.selectionStart;
+  const selEnd    = document.activeElement?.selectionEnd;
+
   const d = state.data;
   document.getElementById('app').innerHTML = `
   <div style="background:#1a3a5c;color:white;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;position:sticky;top:0;z-index:10">
@@ -320,6 +325,13 @@ function render() {
         <div style="transform:scale(0.84);transform-origin:top left;display:inline-block">${previewHTML(d)}</div>
       </div>`
   }`;
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus();
+      try { el.setSelectionRange(selStart, selEnd); } catch(e) {}
+    }
+  }
 }
 
 // မမေ့ပါနဲ့ - အောက်ဆုံးမှာ ဒီ line လေးထည့်ပေးရပါမယ်
